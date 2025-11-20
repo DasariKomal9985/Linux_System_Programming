@@ -1,0 +1,45 @@
+/*
+
+lseek() is a system call that moves the file offset (read/write pointer) inside an open file.
+This pointer decides where the next read or write happens.
+
+
+off_t lseek(int fd, off_t offset, int whence);
+
+
+
+
+| Parameter | Meaning                                        |
+| --------- | ---------------------------------------------- |
+| `fd`      | file descriptor                                |
+| `offset`  | value added to reference position              |
+| `whence`  | reference point (SEEK_SET, SEEK_CUR, SEEK_END) |
+
+
+📌 Return Value
+
+Returns new file offset (>= 0)
+Returns -1 on error (sets errno)
+
+
+⭐ 'whence' Options
+
+
+lseek(fd, 10, SEEK_SET);
+1️⃣ SEEK_SET → Set offset FROM the beginning
+Move pointer to position 10 from start.
+
+lseek(fd, -5, SEEK_CUR);
+2️⃣ SEEK_CUR → Move relative to current position
+Move pointer 5 bytes back from current position.
+
+lseek(fd, 0, SEEK_END);
+3️⃣ SEEK_END → Move relative to end of file
+Go to end of file.
+
+
+*/
+
+
+#include<unistd.h>
+#include<sys/>
