@@ -1,0 +1,11 @@
+| Call          | Meaning                   |
+| ------------- | ------------------------- |
+| unlink()      | Delete a file             |
+| rename()      | Rename a file             |
+| mkdir()       | Create a directory        |
+| rmdir()       | Remove directory          |
+| chmod()       | Change permissions        |
+| chown()       | Change owner              |
+| access()      | Check access rights       |
+| dup(), dup2() | Duplicate file descriptor |
+| fsync()       | Force data to disk        |
