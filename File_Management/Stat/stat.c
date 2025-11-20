@@ -39,6 +39,22 @@ Implement commands like ls, find, cp, mv, rm
 Before reading the file
 
 
+
+struct stat {
+    dev_t     st_dev;     // device number
+    ino_t     st_ino;     // inode number
+    mode_t    st_mode;    // file type + permissions
+    nlink_t   st_nlink;   // number of hard links
+    uid_t     st_uid;     // owner
+    gid_t     st_gid;     // group
+    off_t     st_size;    // file size in bytes
+    time_t    st_atime;   // access time
+    time_t    st_mtime;   // modification time
+    time_t    st_ctime;   // metadata change time
+};
+
+
+
 */
 
 #include <stdio.h>
