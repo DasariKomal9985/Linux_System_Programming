@@ -40,3 +40,19 @@ Before reading the file
 
 
 */
+
+#include <stdio.h>
+#include <sys/stat.h>
+
+int main() {
+    struct stat st;
+
+    if (stat("random.txt", &st) == 0) {
+        printf("stat(): File size = %ld\n", st.st_size);
+        printf("stat(): File inode = %ld\n", st.st_ino);
+        printf("stat(): Permissions = %o\n", st.st_mode & 0777);
+    } else {
+        perror("stat failed");
+    }
+}
+
