@@ -27,3 +27,31 @@ Networking programs
 Shells and system tools
 
 */
+
+
+
+
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int main() {
+    struct stat st;
+    int fd = open("random.txt", O_RDONLY);
+    int fd1 = open("random2.txt",O_RDONLY);
+
+    if (fd < 0) {
+        perror("open failed");
+        return 1;
+    }
+
+    fstat(fd, &st);
+
+    printf("fstat(): File size = %ld\n", st.st_size);
+    printf("fstat(): Number of links = %ld\n", st.st_nlink);
+
+    close(fd);
+    close(fd);
+}
+
