@@ -1,0 +1,156 @@
+fork() is a system call used to create a new process in Linux.
+
+Parent process → original process
+Child process → new process created by fork()
+
+Both processes will now run independently.
+
+
+
+
+⭐ PART 2 — What fork() returns
+| Process | fork() Return Value              |
+| ------- | -------------------------------- |
+| Parent  | **child PID** (positive integer) |
+| Child   | **0**                            |
+| Error   | **-1**                           |
+
+
+
+You use this return value to identify:
+
+which part is parent
+which part is child
+
+
+
+⭐ PART 3 — What gets duplicated?
+
+When fork() is called, Linux creates a child process by copying the parent’s:
+
+✔ code segment (shared, read-only)
+✔ data segment
+✔ heap
+✔ stack
+✔ file descriptor table
+✔ PCB (Process Control Block)
+
+BUT modern Linux uses "Copy-On-Write" — only duplicates memory when needed.
+
+So fork() is fast.
+
+
+
+
+⭐ PART 4 — Internal Working of fork()
+Step-by-step:
+
+You call fork() → system call
+CPU switches to kernel mode
+Kernel creates PCB for child
+Kernel copies parent’s address space (COW)
+Kernel assigns a new PID to child
+Kernel copies file descriptor table
+fork() returns twice:
+once in parent
+once in child
+
+
+
+
+⭐ PART 5 — fork() Memory Layout
+
+          Parent Process
+          ---------------
+          code
+          data
+          heap
+          stack
+          file descriptors
+                |
+                |  fork()
+                V
+          Child Process (duplicate)
+          -------------------------
+          code      (shared)
+          data      (copied COW)
+          heap      (copied COW)
+          stack     (copied COW)
+          file descriptors (copied)
+
+
+
+Multiple fork()
+
+fork();
+fork();
+Creates 4 processes.
+
+
+
+fork() and file descriptors
+Child inherits all open file descriptors.
+
+Example:
+
+If parent opened a file with fd = 3
+Child will also have fd = 3
+Both can write to same file → interleaving
+
+
+
+
+fork() and variables
+
+Parent and child have separate memory after fork.
+Modifying a variable in child does NOT affect parent.
+
+int x = 5;
+if (fork() == 0) x = 20;
+printf("%d\n", x);
+
+20 (child)
+5  (parent)
+
+
+
+fork() scheduling
+
+Both processes run concurrently.
+Order is NOT guaranteed.
+
+Child
+Parent
+or:
+Parent
+Child
+
+Both are normal.
+
+
+What happens if the parent doesn’t wait?
+
+If parent doesn’t call wait() → child becomes ⭐ zombie process.
+Definition:
+
+child finished
+parent didn’t collect exit status
+entry remains in process table
+
+
+
+fork() + exec()
+fork() is usually followed by exec() to run a new program.
+
+if (fork() == 0) {
+    execl("/bin/ls", "ls", NULL);
+}
+
+Parent and child run different code now.
+
+
+
+
+
+fork() creates a child process by duplicating the parent;
+returns 0 in child, PID in parent.
