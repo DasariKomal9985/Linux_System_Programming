@@ -1,0 +1,79 @@
+⭐ 1. What is a Race Condition?
+
+A race condition happens when:
+
+✔ Two or more processes/threads
+✔ TRY TO ACCESS OR MODIFY THE SAME SHARED RESOURCE
+✔ AT THE SAME TIME
+✔ And the final result depends on who runs first (the race)
+
+So the output becomes:
+
+❌ unpredictable
+❌ inconsistent
+❌ wrong
+❌ random behavior
+
+
+
+
+⭐ 2. Why does a race condition happen?
+
+Because the OS scheduler runs threads in unknown order.
+
+Two threads modify the same variable:
+x = 0
+
+Thread 1 → x = x + 1
+Thread 2 → x = x + 1
+
+
+x = 2
+
+
+1  (lost update)
+
+
+x = x + 1
+
+
+It involves:
+
+Load x
+Add 1
+Store x
+If both threads load x BEFORE any stores happen → both write the same value → one increment is lost.
+
+
+
+
+⭐ 3. Real-world analogy (very easy)
+🛒 Two people withdrawing from the same bank account
+
+Balance = 1000
+Person A wants to withdraw 700
+Person B wants to withdraw 700
+
+If both check balance at the SAME TIME → both see 1000 → both withdraw → account becomes –400 (incorrect).
+
+This is a race condition.
+
+
+
+⭐ 4. Real Linux Example (dangerous)
+
+Two processes writing to the same file without locking:
+
+Process 1 → write "hello"
+Process 2 → write "komal"
+
+
+Output file may become:
+
+hekomallo
+
+This corruption is a race condition.
+
+
+
+
