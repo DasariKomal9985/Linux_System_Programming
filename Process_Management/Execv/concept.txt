@@ -1,0 +1,161 @@
+exec() is a family of system calls used to:
+
+Replace the current process with a new program.
+
+Same PID
+Same open file descriptors (unless marked close-on-exec)
+Same environment variables
+Same working directory
+BUT completely new text, data, heap, stack, and instructions
+
+It does NOT create a new process — it replaces the calling process.
+
+
+IMPORTANT: exec() NEVER RETURNS (if successful)
+
+If exec() succeeds:
+your old program’s code disappears
+your old variables disappear
+your old functions disappear
+the new program starts from main()
+The ONLY case where exec returns is:
+✔ if exec fails (file not found, permission denied, etc.)
+
+
+
+Why do we need exec()?
+
+Because in Linux, process creation is 2-step:
+
+✔ Step 1: fork() creates a new process
+✔ Step 2: exec() loads a new program into that process
+
+bash:
+    fork()
+        child
+            exec("/bin/ls")
+    parent
+        wait()
+
+
+
+exec family: different functions, same purpose
+
+
+| Function      | When used                             |
+| ------------- | ------------------------------------- |
+| **execl()**   | Pass arguments as list                |
+| **execv()**   | Pass arguments as array of char*      |
+| **execle()**  | List + environment                    |
+| **execve()**  | THE ACTUAL system call                |
+| **execvp()**  | Uses PATH variable (common in shells) |
+| **execvpe()** | PATH + environment                    |
+
+
+All finally call execve() in kernel.
+
+
+
+
+execve() Prototype (actual system call)
+
+int execve(const char *pathname, char *const argv[], char *const envp[]);
+✔ pathname → executable path
+✔ argv → argument list (argv[0] = program name)
+✔ envp → environment variables
+
+
+
+
+Memory BEFORE and AFTER exec()
+
+Before exec():
+Parent fork()
+  ↓
+Child
+  ├── same code as parent
+  ├── same variables
+  ├── same heap/stack
+  ├── same file descriptors
+
+
+After exec():
+Child becomes NEW PROGRAM
+  ├── new code (from executable)
+  ├── new data/stack/heap
+  ├── SAME PID
+  ├── SAME open file descriptors
+
+
+Only file descriptors survive exec — unless FD_CLOEXEC flag is set.
+
+
+exec() does NOT create new PID
+
+PID = 1234
+fork() → child PID = 1235
+child exec("/bin/ls") → PID still 1235
+
+Only the “program inside the process” changes.
+
+
+
+
+How exec() actually works inside the kernel
+
+Load ELF executable from disk
+Free current process memory (text, data, heap)
+Replace with new program image
+Set up new stack (argv, envp)
+Set program entry point (main)
+Jump to entry point → new program starts executing
+
+
+
+What if exec fails?
+Reasons:
+file not executable
+permission denied
+wrong path
+insufficient memory
+
+
+
+🔥 execve() → the actual system call.
+
+
+| Function    | Takes PATH search? | Arguments type | Environment control    |
+| ----------- | ------------------ | -------------- | ---------------------- |
+| **execl**   | NO                 | list           | NO                     |
+| **execlp**  | YES                | list           | NO                     |
+| **execle**  | NO                 | list           | YES                    |
+| **execv**   | NO                 | array          | NO                     |
+| **execvp**  | YES                | array          | NO                     |
+| **execvpe** | YES                | array          | YES                    |
+| **execve**  | NO                 | array          | YES (root system call) |
+
+
+
+🟦 1. execl() — exec using LIST of arguments
+
+int execl(const char *path, const char *arg0, ..., NULL);
+
+Features:
+Uses full path (NO PATH searching)
+Pass arguments as comma-separated list
+Ends with NULL
+
+
+
+#include <unistd.h>
+#include <stdio.h>
+
+int main() {
+    execl("/bin/ls", "ls", "-l", NULL);
+
+    // If this executes, exec failed
+    perror("execl failed");
+}
+
+
+
