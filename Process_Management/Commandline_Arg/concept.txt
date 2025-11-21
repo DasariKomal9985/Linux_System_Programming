@@ -1,0 +1,111 @@
+Command-Line Arguments
+
+
+./myprog hello 123 world
+
+
+
+How Does a C Program Receive Them?
+
+int main(int argc, char *argv[])
+
+int main(int argc, char **argv)
+
+
+✅ What Do argc and argv Mean?
+| Term     | Meaning                                        |
+| -------- | ---------------------------------------------- |
+| `argc`   | Argument Count → how many arguments are passed |
+| `argv[]` | Argument Vector → array of strings (char *)    |
+
+
+
+./myprog apple mango banana
+
+
+| Value     | Description                     |
+| --------- | ------------------------------- |
+| `argc`    | 4                               |
+| `argv[0]` | `"./myprog"` → the program name |
+| `argv[1]` | `"apple"`                       |
+| `argv[2]` | `"mango"`                       |
+| `argv[3]` | `"banana"`                      |
+| `argv[4]` | `NULL` → always ends with NULL  |
+
+
+
+
+
+
+Print All Arguments
+
+#include <stdio.h>
+
+int main(int argc, char *argv[]) {
+    printf("Total arguments: %d\n", argc);
+
+    for (int i = 0; i < argc; i++) {
+        printf("argv[%d] = %s\n", i, argv[i]);
+    }
+
+    return 0;
+}
+
+
+$ gcc test.c -o test
+$ ./test hello 123 "how are you"
+
+
+Total arguments: 4
+argv[0] = ./test
+argv[1] = hello
+argv[2] = 123
+argv[3] = how are you
+
+
+Note: If you pass "how are you" as a quoted string, it's treated as a single argument.
+
+
+
+✅ Why Are Command-Line Arguments Useful?
+They let you control what your program does from outside.
+
+if (argc > 1 && strcmp(argv[1], "-h") == 0) {
+    printf("Help: usage is ./myprog [options]\n");
+}
+
+
+./myprog -h
+
+
+It will show a help message — like real Linux commands.
+
+
+| Concept               | Meaning                                     |
+| --------------------- | ------------------------------------------- |
+| `argc`                | Number of arguments (always ≥ 1)            |
+| `argv[0]`             | Program name (can be relative or full path) |
+| `argv[1] ... argv[n]` | Actual user inputs                          |
+| `argv[argc]`          | Always NULL                                 |
+| Quoted strings        | Treated as **one** argument                 |
+| Can pass any string   | Including numbers, symbols, filenames       |
+
+
+
+
+
+lf-l file.txt -v
+
+int main(int argc, char *argv[])
+
+| Index | Value      |
+| ----- | ---------- |
+| 0     | "lf-l"     |
+| 1     | "file.txt" |
+| 2     | "-v"       |
+| 3     | NULL       |
+
+
+
+
+
