@@ -1,0 +1,93 @@
+⭐ 1. What is wait()?
+
+wait() is a process control system call used by a parent process to:
+
+✔ wait for its child process to finish
+✔ collect the child’s exit status
+✔ prevent zombie processes
+✔ synchronize with child process
+
+
+
+pid_t wait(int *status);
+
+
+
+
+⭐ 2. Why do we need wait()?
+
+Because when a child process finishes:
+it does not disappear immediately
+its entry stays in the process table (ZOMBIE state)
+only the parent can remove it
+parent must call wait() or waitpid()
+So wait() cleans up:
+
+✔ zombie process
+✔ releases kernel resources
+✔ returns child PID
+✔ gives exit code
+
+
+
+
+⭐ 3. What happens without wait()? (Zombie Process)
+
+if (fork() == 0) {
+    printf("Child exiting...\n");
+    return 0;
+}
+sleep(5);    // parent is doing nothing
+
+
+Output:
+
+Child finishes immediately
+Parent does NOT call wait()
+Child becomes a Zombie for 5 seconds
+“defunct” appears in ps output
+A zombie process:
+
+✔ finished
+✔ but OS keeps its PID + exit status
+✔ until parent calls wait()
+
+
+
+⭐ 4. How wait() Works Internally
+
+Parent calls wait()
+Kernel checks if any child has terminated
+If NO child finished → wait() blocks
+If YES → kernel:
+returns child PID
+clears child PCB
+frees kernel resources
+child state removed from process table
+
+
+
+
+⭐ 7. Important Macros for wait()
+
+
+| Macro                 | Meaning                    |
+| --------------------- | -------------------------- |
+| `WIFEXITED(status)`   | child ended normally       |
+| `WEXITSTATUS(status)` | exit() return value        |
+| `WIFSIGNALED(status)` | child terminated by signal |
+| `WTERMSIG(status)`    | which signal killed child  |
+
+
+
+⭐ 10. waitpid() vs wait()
+| Function                  | Use                     |
+| ------------------------- | ----------------------- |
+| **wait()**                | Wait for ANY child      |
+| **waitpid(pid, ...)**     | Wait for SPECIFIC child |
+| **waitpid(-1, ...)**      | Same as wait()          |
+| **waitpid(..., WNOHANG)** | Non-blocking wait       |
+
+
+
+
