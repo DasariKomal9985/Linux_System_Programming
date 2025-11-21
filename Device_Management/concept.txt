@@ -1,0 +1,58 @@
+ioctl() means:
+
+I/O Control
+
+It is a device control system call used to send special commands to device drivers.
+
+
+
+int ioctl(int fd, unsigned long request, ...);
+
+✔ fd → file descriptor of device
+Example: UART, USB, camera, touchscreen, GPIO, network interface etc.
+
+✔ request → what command you want to do
+Example: “set baud rate”, “turn motor ON”, “change mode”.
+
+✔ argument → optional data
+Pointer to a structure containing configuration.
+
+
+
+
+Why do we use ioctl()?
+
+Because read/write/open/close/lseek are not enough to control hardware.
+Example:
+You can read/write UART data
+But how to set baud rate?
+How to disable parity?
+How to configure GPIO pin direction?
+How to start/stop a camera?
+How to get/set network settings?
+These require special device-specific commands.
+ioctl() is the universal method for this.
+
+
+Kernel steps:
+
+Find the device driver associated with fd
+Call driver's ioctl handler
+Driver receives:
+command
+user argument
+Driver performs requested operation
+Driver returns success or error
+
+
+
+long my_ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
+    switch(cmd) {
+        case CMD_XYZ:
+            // handle command
+            break;
+    }
+}
+
+
+
