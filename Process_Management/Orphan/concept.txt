@@ -1,0 +1,26 @@
+⭐ WHAT IS AN ORPHAN PROCESS?
+
+A process becomes ORPHAN when:
+Its parent dies first
+But child is still running
+When this happens:
+
+👉 The kernel automatically reassigns the child’s parent to init (PID = 1) or systemd.
+This prevents child processes from becoming zombies.
+
+
+
+
+
+⭐ Why does orphan happen?
+
+
+Parent forks a child
+Parent exits immediately
+Child is still running
+Child has NO parent now → becomes orphan
+Kernel assigns parent = init/systemd
+init/systemd waits for the child when it ends
+So no zombie is created
+
+
