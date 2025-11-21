@@ -159,3 +159,167 @@ int main() {
 
 
 
+
+Why a New Process?
+
+One program = One job
+Shell: parses commands, manages environment, provides prompt
+ls: lists directory contents
+cat: prints files
+grep: searches text
+pwd: prints working directory
+
+
+
+Each is a separate executable file.
+
+Shell does NOT want to “mix” its memory with that of programs.
+
+
+
+
+If the shell ran ls inside its own process:
+
+It would overwrite its own memory
+It could crash itself
+It would lose its prompt, variables, environment
+
+
+
+
+Instead:
+
+The safe design:
+Shell creates a child process (fork)
+The child process replaces itself with ls (exec)
+Shell waits
+When ls is done, child exits
+Shell continues cleanly
+
+
+
+What Happens If Shell Never Used fork()?
+
+
+Shell directly runs ls code inside itself:
+Shell memory gets replaced
+After ls prints, there is no shell left to return to
+No prompt
+No environment
+No variables
+No ability to run next command
+Your terminal would disappear after executing one command.
+
+
+
+So without fork() + exec():
+
+The shell would self-destruct every time you run a command.
+
+
+
+7. Why Still Use fork() When exec() Replaces the Child Anyway?
+
+
+fork() creates a new safe process.
+exec() overwrites only the child, never the shell.
+fork() ensures the parent shell survives.
+
+
+Analogy
+
+ls -l
+
+The manager does NOT do the work itself.
+It hires a worker (fork),
+gives him the job to do (exec),
+waits for him to finish,
+collects the results,
+and stays available for more commands.
+
+
+
+
+1. Program Path (Executable Path)
+This is the location of the executable file that you want to run
+
+
+
+/bin/ls
+/usr/bin/cobra4
+/home/anaconda/a.out
+
+✔ Absolute path
+/usr/bin/gcc
+/bin/cat
+
+
+✔ Relative path
+./a.out
+../scripts/run
+
+
+
+
+2. Argument List (Command-Line Arguments)
+Arguments are the inputs passed to the program when it starts.
+
+ls -l -a /home
+
+
+| Index   | Value      |
+| ------- | ---------- |
+| argv[0] | "ls"       |
+| argv[1] | "-l"       |
+| argv[2] | "-a"       |
+| argv[3] | "/home"    |
+| argv[4] | NULL (end) |
+
+
+argv[0] is always the program name (convention)
+Arguments appear exactly as typed
+They tell the program how to behave
+-l means long listing
+/home is target directory
+
+
+
+
+✔ List (l-series)
+execl("/bin/ls", "ls", "-l", "-a", "/home", NULL);
+
+
+
+✔ Vector/array (v-series)
+char *args[] = {"ls", "-l", "-a", "/home", NULL};
+execv("/bin/ls", args);
+
+
+
+
+
+3. Environment Variables (envp)
+Environment variables are global key-value settings for a process.
+
+
+PATH=/usr/bin:/bin
+HOME=/home/eswar
+USER=mamba
+LANG=en_US.UTF-8
+PWD=/home/Anaconds/projects
+
+
+They store configuration about:
+user identity
+directory locations
+language
+executable search path
+terminal type
+
+In exec:
+
+Normal exec variants (execl, execv, execlp, execvp) inherit environment variables.
+execle and execve allow you to replace environment variables.
+
+
+
