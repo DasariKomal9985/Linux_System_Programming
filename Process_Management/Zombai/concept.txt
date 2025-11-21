@@ -1,0 +1,107 @@
+⭐ 1. What is a Zombie Process?
+
+A zombie process is a child process that:
+
+✔ has finished execution
+✔ but its parent has NOT called wait() or waitpid()
+✔ so the kernel keeps its entry in the process table
+✔ showing <defunct> in ps
+
+The process is DEAD, but still occupies a PID.
+
+
+
+⭐ 2. WHY does a Zombie process exist?
+
+Because Linux must save:
+exit status
+return code
+how the child terminated
+for the parent to read via wait().
+Until parent collects this information:
+
+👉 child stays as zombie
+👉 kernel cannot remove PCB
+👉 parent must call wait() to clean it
+
+
+
+
+
+⭐ 3. What a Zombie CANNOT do
+
+Zombies:
+
+cannot run code
+cannot use CPU
+cannot do system calls
+cannot respond
+cannot consume memory
+cannot be killed by kill -9
+Because they are already DEAD.
+Zombies only occupy:
+1 PID
+small kernel structure (process table slot)
+
+
+
+
+⭐ 4. Why Zombies are Dangerous?
+
+If many zombies pile up:
+
+✔ system might run out of PIDs
+✔ process table becomes full
+✔ system becomes unstable
+
+This is why good programs must ALWAYS call wait().
+
+
+
+
+⭐ 5. IDENTIFYING Zombies
+
+ps -ef | grep defunct
+
+[a.out] <defunct>
+
+Z    0:00  [a.out]
+
+ps aux | grep Z
+
+
+
+Parent
+  |
+  |-- fork()
+      |
+      +-- Child starts → running
+                 |
+              exit()
+                 ↓
+         Kernel keeps child as zombie
+                 ↓
+         Parent MUST call wait()
+                 ↓
+         Kernel removes zombie entry
+
+
+
+
+
+⭐ 10. How to avoid zombies (3 methods)
+🟩 1. Use wait() or waitpid()
+
+Parent cleans child.
+
+🟧 2. Parent catches SIGCHLD
+
+Signal handler automatically removes child.
+
+🟥 3. Child becomes orphan → adopted by init/systemd
+
+init always waits for children → no zombie.
+This is why orphans DO NOT become zombies.
+
+
+
