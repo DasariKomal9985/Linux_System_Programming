@@ -24,3 +24,40 @@ init/systemd waits for the child when it ends
 So no zombie is created
 
 
+
+| Property                         | Meaning                           |
+| -------------------------------- | --------------------------------- |
+| Parent dies first                | Child becomes orphan              |
+| New Parent = init/systemd        | PID 1 adopts the child            |
+| No zombie is created             | Because init/systemd waits for it |
+| Child continues running normally | No interruption                   |
+
+
+
+
+
+Original:
+Parent (PID 1000)
+   └── Child (PID 1001)
+
+Parent dies → Child becomes orphan
+
+After re-parenting:
+init (PID 1)
+   └── Child (PID 1001)
+
+
+
+
+⭐ WHY Linux RE-PARENTS ORPHAN CHILDREN?
+
+To prevent zombies.
+If child didn’t get a new parent:
+when it exits, NO ONE would call wait()
+that would cause a zombie forever
+So Linux uses init/systemd to clean them up.
+
+
+
+
+
