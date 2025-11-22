@@ -1,0 +1,71 @@
+⭐ 1. What is a Semaphore?
+
+A semaphore is a synchronization tool used to:
+
+✔ Control access to shared resources
+✔ Avoid race conditions
+✔ Allow multiple threads/processes to coordinate
+✔ Implement signaling between threads
+
+A semaphore holds a counter, which represents how many threads can access a resource.
+
+
+
+
+
+⭐ 2. Types of Semaphores
+
+There are two main types:
+
+🔵 1. Binary Semaphore (0/1)
+
+Value is either 0 or 1
+Works like a mutex
+Used for mutual exclusion
+
+🔵 2. Counting Semaphore
+
+Value can be 0 to N
+Allows N threads to access a resource
+Useful for:
+producer–consumer
+thread pools
+limiting connections
+
+
+
+
+⭐ 3. Semaphore Operations 
+
+
+✔ sem_wait(&sem)
+Decrease semaphore
+If sem == 0 → thread BLOCKS
+If sem > 0 → thread continues
+
+✔ sem_post(&sem)
+Increase semaphore
+
+Unblocks waiting threads
+
+✔ sem_init()
+Create semaphore with initial value
+
+✔ sem_destroy()
+Free resources
+
+
+
+
+| Feature   | Semaphore                   | Mutex                     |
+| --------- | --------------------------- | ------------------------- |
+| Value     | 0..N                        | 0 or 1                    |
+| Ownership | Can be posted by ANY thread | ONLY owner can unlock     |
+| Purpose   | Signaling + counting        | Mutual exclusion          |
+| blocking  | sem_wait blocks             | pthread_mutex_lock blocks |
+| Type      | OS synchronization          | Thread locking            |
+
+
+
+
+
