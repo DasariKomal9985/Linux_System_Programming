@@ -1,0 +1,114 @@
+⭐ 1. What is mmap()?
+
+mmap() stands for Memory Map.
+
+It maps a file or memory directly into your process address space.
+
+Meaning:
+
+✔ You get a pointer
+✔ You read/write like normal memory
+✔ OS handles file syncing
+✔ No read() or write() needed
+
+
+❌ Normal file I/O:
+read() → copy file → kernel buffer → user buffer
+
+
+✔ mmap I/O:
+Kernel maps file pages into your address space → NO COPY
+
+
+
+void *mmap(void *addr, size_t length, int prot, int flags,
+           int fd, off_t offset);
+
+
+
+⭐ 4. mmap() PARAMETERS E
+📌 addr
+
+Suggested address (usually NULL)
+Kernel decides final address
+
+📌 length
+
+Size of mapping (must be > 0)
+Usually page aligned (4 KB)
+
+
+📌 prot — Memory Protection
+| Flag       | Meaning               |
+| ---------- | --------------------- |
+| PROT_READ  | memory can be read    |
+| PROT_WRITE | memory can be written |
+| PROT_EXEC  | can execute           |
+| PROT_NONE  | no access             |
+
+
+PROT_READ | PROT_WRITE
+
+
+
+📌 flags — Controls mapping type
+
+| Flag          | Meaning                     |
+| ------------- | --------------------------- |
+| MAP_SHARED    | shared with other processes |
+| MAP_PRIVATE   | copy-on-write (not shared)  |
+| MAP_ANONYMOUS | no file, pure RAM           |
+
+
+
+📌 fd
+
+File descriptor
+For MAP_ANONYMOUS, use -1
+
+
+📌 offset
+
+Offset in file (must be page-aligned)
+
+
+
+⭐ 5. Types of mmap
+
+🔵 A) File-backed mmap
+
+Mapping a file to memory.
+
+Editing text files
+Database files
+Executable loading
+Shared libraries
+
+🔵 B) Anonymous mmap
+
+Not backed by file, only RAM.
+
+IPC shared memory
+Heap creation
+Thread stacks
+Large memory blocks
+
+
+
+
+
+| Feature            | mmap      | shmget | pipe   | MQ     |
+| ------------------ | --------- | ------ | ------ | ------ |
+| Speed              | ⭐ Fastest | Fast   | Medium | Medium |
+| Copying            | No        | No     | Yes    | Yes    |
+| Sharing            | Yes       | Yes    | No     | Yes    |
+| Message boundaries | No        | No     | Yes    | Yes    |
+| File backing       | Yes       | No     | No     | No     |
+
+
+
+
+void *mem = mmap(NULL, 4096,
+                 PROT_READ | PROT_WRITE,
+                 MAP_PRIVATE | MAP_ANONYMOUS,
+                 -1, 0);
