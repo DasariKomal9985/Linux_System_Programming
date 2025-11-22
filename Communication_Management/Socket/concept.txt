@@ -1,0 +1,101 @@
+⭐ 1. What is a Socket?
+
+A socket is a communication endpoint.
+
+It allows:
+
+Two processes to talk
+Two machines to talk
+One-to-one or one-to-many communication
+
+A socket works like:
+process A <---- socket ----> process B
+
+
+Can be on:
+
+✔ Same machine
+✔ Different machine
+✔ Different network
+
+
+
+
+🔵 A) UNIX Domain Sockets (Local IPC)
+
+
+Very fast
+Uses a file path like /tmp/mysock
+No network protocol
+Used between local processes
+Functions same as TCP sockets but no networking.
+
+
+
+
+
+🔵 B) INTERNET Sockets (Network IPC)
+
+Used for communication across network.
+
+Two types:
+1️⃣ TCP Sockets (SOCK_STREAM)
+Reliable
+Ordered
+Connection-oriented
+Used for web servers, ssh, chat apps
+
+2️⃣ UDP Sockets (SOCK_DGRAM)
+Unreliable
+Fast
+No connection
+Used for games, VoIP, video streaming
+
+
+
+
+
+| Function    | Purpose           |
+| ----------- | ----------------- |
+| `socket()`  | create socket     |
+| `bind()`    | assign address    |
+| `listen()`  | wait for client   |
+| `accept()`  | accept client     |
+| `connect()` | connect to server |
+| `send()`    | send data         |
+| `recv()`    | receive data      |
+| `close()`   | close socket      |
+
+
+
+
+⭐ 4. CLIENT–SERVER MODEL 
+
+Server steps:
+socket()
+bind()
+listen()
+accept()
+read()/write()
+close()
+
+
+Client steps:
+socket()
+connect()
+read()/write()
+close()
+
+
+
+
+| Feature     | UNIX Socket | TCP          | UDP                    |
+| ----------- | ----------- | ------------ | ---------------------- |
+| IPC         | Yes         | No           | No                     |
+| Network     | No          | Yes          | Yes                    |
+| Speed       | Fastest     | Medium       | Fastest but unreliable |
+| Reliability | High        | Very High    | Low                    |
+| Use case    | Local IPC   | Web, servers | Games, DNS             |
+
+
+
