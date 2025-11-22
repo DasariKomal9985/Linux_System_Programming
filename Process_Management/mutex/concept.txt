@@ -1,0 +1,56 @@
+⭐ 1. What is a Mutex?
+
+MUTEX = MUTual EXclusion
+
+A mutex ensures:
+
+✔ Only ONE thread can enter the critical section
+✔ Protects shared data
+✔ Prevents race conditions
+✔ Provides locking mechanism
+
+A mutex is like putting a lock on a room → only one person (thread) can enter at a time.
+
+
+
+⭐ 2. How Mutex Works Internally
+
+A mutex has two states:
+locked (1)
+unlocked (0)
+When a thread calls:
+
+✔ pthread_mutex_lock(&m);
+If mutex is unlocked → thread enters and mutex becomes locked
+If mutex is locked → thread blocks (waits)
+When thread finishes critical section:
+
+✔ pthread_mutex_unlock(&m);
+Releases lock
+Next waiting thread wakes up
+
+
+
+| Function                  | Meaning                 |
+| ------------------------- | ----------------------- |
+| `pthread_mutex_init()`    | create mutex            |
+| `pthread_mutex_destroy()` | destroy mutex           |
+| `pthread_mutex_lock()`    | lock (block until free) |
+| `pthread_mutex_trylock()` | try lock (non-blocking) |
+| `pthread_mutex_unlock()`  | unlock                  |
+
+
+
+
+| Feature   | Mutex                 | Semaphore            |
+| --------- | --------------------- | -------------------- |
+| Value     | 0 or 1                | 0 to N               |
+| Ownership | ONLY owner can unlock | anyone can post      |
+| Purpose   | mutual exclusion      | signaling + counting |
+| Blocking  | lock waits            | sem_wait waits       |
+| Type      | locking primitive     | signaling primitive  |
+
+
+
+
+
