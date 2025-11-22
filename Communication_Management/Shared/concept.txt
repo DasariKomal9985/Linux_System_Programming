@@ -1,0 +1,63 @@
+⭐ 1. What is Shared Memory?
+
+Shared memory is an IPC mechanism where two or more processes share the same RAM region.
+
+Meaning:
+
+✔ One process writes into memory
+✔ Another process reads from the SAME memory
+✔ No copying
+✔ Full speed
+
+Shared memory is used when large data must be shared fast.
+
+
+
+
+⭐ 2. Why Shared Memory is the FASTEST IPC?
+
+Because:
+❌ Pipes, FIFOs, sockets → copy data twice
+
+User → kernel
+Kernel → user
+
+✔ Shared memory → NO COPY
+Both processes use same memory segment, mapped directly.
+
+This makes it fastest and best for large data.
+
+
+
+
+| Function   | Purpose                      |
+| ---------- | ---------------------------- |
+| `shmget()` | create shared memory segment |
+| `shmat()`  | attach to process            |
+| `shmdt()`  | detach                       |
+| `shmctl()` | control/delete               |
+
+
+
+
+
+| Function       | Purpose                     |
+| -------------- | --------------------------- |
+| `shm_open()`   | create shared memory object |
+| `ftruncate()`  | set memory size             |
+| `mmap()`       | map into memory             |
+| `munmap()`     | unmap                       |
+| `shm_unlink()` | delete                      |
+
+
+
+
+
++-------------------+
+| Shared Memory Area|
+|   (kernel alloc)  |
++-------------------+
+       ↑       ↑
+       |       |
+Process A   Process B
+mmap()     mmap()
