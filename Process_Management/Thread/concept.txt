@@ -1,0 +1,25 @@
+⭐ 1. What is a Thread?
+
+A thread is:
+
+✔ A lightweight execution unit inside a process
+✔ Shares same memory with other threads
+
+✔ Each thread has its own:
+
+Stack
+Program counter
+Registers
+
+But all threads inside a process share:
+
+Code section
+Data section
+Heap memory
+File descriptors
+
+This is why threads are fast and memory-efficient.
+
+
+
+
