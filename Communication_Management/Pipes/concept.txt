@@ -1,0 +1,56 @@
+⭐ 1. What is a PIPE?
+
+A pipe is a one-way communication channel between processes.
+
+Think of a pipe as:
+
+✔ A queue inside the kernel
+✔ One process writes → other process reads
+✔ Unidirectional (one direction only)
+✔ Uses file descriptors (FDs)
+
+
+
+
+| FD      | Meaning   |
+| ------- | --------- |
+| `fd[0]` | Read end  |
+| `fd[1]` | Write end |
+
+
+
+int fd[2];
+pipe(fd);
+
+After this:
+fd[0] → READ
+fd[1] → WRITE
+
+Both ends exist inside the same process, but after fork():
+Parent can write
+Child can read
+Or vice-versa
+
+
+
+
+⭐ 3. Pipe Mechanism
+
+Process A (writer) ---> [ pipe buffer in kernel ] ---> Process B (reader)
+The kernel maintains:
+a circular buffer
+blocking behavior
+synchronization
+atomic writes up to PIPE_BUF size
+
+
+
+⭐ 4. Blocking Rules
+✔ If pipe is EMPTY → read() BLOCKS
+✔ If pipe is FULL → write() BLOCKS
+✔ If write end is closed → read() returns 0 (EOF)
+✔ If read end is closed → write() causes SIGPIPE
+
+
+
+
