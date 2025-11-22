@@ -1,0 +1,74 @@
+⭐ 1. What is a Message Queue?
+
+A message queue is an IPC mechanism where processes communicate by sending discrete messages, not streams.
+
+Meaning:
+
+✔ You send messages as packets
+✔ No mixing of data
+✔ Messages arrive in predictable order (FIFO or priority order)
+✔ Used for structured IPC
+
+Unlike pipes:
+
+Pipes = stream of bytes
+
+Message Queue = messages with boundaries
+
+
+
+
+⭐ 2. Why Message Queue?
+
+Because message queue supports:
+
+✔ Multiple messages
+✔ Variable-size messages
+✔ Priority messages
+✔ Multiple senders, multiple receivers
+✔ Safe communication
+✔ Queue preserved even if both processes die (System V)
+
+Message Queues are used in:
+RTOS
+Robotics
+Embedded systems
+Servers
+Inter-process event notifications
+
+
+
+⭐ 3. Types of Message Queues
+
+
+🔵 System V Message Queues
+(older, heavy-weight, persistent until removed)
+
+🔵 POSIX Message Queues
+(newer, cleaner API, recommended)
+
+
+
+⭐ 4. SYSTEM V MESSAGE QUEUES
+
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+
+| Function   | Use                            |
+| ---------- | ------------------------------ |
+| `msgget()` | Create or access message queue |
+| `msgsnd()` | Send message                   |
+| `msgrcv()` | Receive message                |
+| `msgctl()` | Control/delete                 |
+
+
+
+
+struct msgbuf {
+    long mtype;       // message type (must be > 0)
+    char mtext[100];  // actual data
+};
+
+
+
