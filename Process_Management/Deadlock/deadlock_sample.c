@@ -1,47 +1,48 @@
 /************************************************************
- * DEMONSTRATION OF DEADLOCK USING TWO MUTEXES AND TWO THREADS
- * -----------------------------------------------------------
- * This program intentionally creates a DEADLOCK.
- * 
- * Thread 1 locks mutexes in this order:
- *      first_mutex  →  second_mutex
+ * DEADLOCK-FREE MULTI-THREADING PROGRAM USING MUTEX ORDERING
+ * ----------------------------------------------------------
+ * This program creates two threads (T1 and T2). Both threads
+ * need to lock TWO mutexes. If they lock them in different
+ * orders, a deadlock occurs. However, here both threads lock
+ * the mutexes in the SAME order:
  *
- * Thread 2 locks mutexes in this order:
- *      second_mutex →  first_mutex
+ *          first_mutex → second_mutex
  *
- * Because both threads acquire locks in OPPOSITE ORDER,
- * they will wait forever for each other → DEADLOCK OCCURS.
+ * Because both threads follow the same locking order, there
+ * is no circular wait condition → NO DEADLOCK.
  ************************************************************/
 
 #include <unistd.h>      // For sleep()
-#include <pthread.h>     // For threads and mutexes
+#include <pthread.h>     // For pthreads and mutex functions
 #include <stdio.h>       // For printf()
 
 /***********************
  * FUNCTION DECLARATIONS
  ***********************/
-void *fun1();   // Thread 1 entry function
-void *fun2();   // Thread 2 entry function
+void *fun1();   // Thread 1 function
+void *fun2();   // Thread 2 function
 
 /*******************************
  * GLOBAL MUTEX DECLARATIONS
+ * --------------------------
+ * These mutexes protect shared resources.
  *******************************/
-pthread_mutex_t first_mutex;    // First shared lock
-pthread_mutex_t second_mutex;   // Second shared lock
+pthread_mutex_t first_mutex;   // First lock
+pthread_mutex_t second_mutex;  // Second lock
 
 
 /***********************
- *        MAIN
+ * MAIN FUNCTION STARTS
  ***********************/
 int main()
 {
     /**************************************************
      * INITIALIZE BOTH MUTEXES
      **************************************************/
-    pthread_mutex_init(&first_mutex, NULL);
-    pthread_mutex_init(&second_mutex, NULL);
+    pthread_mutex_init(&first_mutex, NULL);   // Initialize first mutex
+    pthread_mutex_init(&second_mutex, NULL);  // Initialize second mutex
 
-    pthread_t T1, T2;  // Thread identifiers
+    pthread_t T1, T2;   // Thread identifiers
 
     /**************************************************
      * CREATE THREAD 1 → runs fun1()
@@ -54,102 +55,104 @@ int main()
     pthread_create(&T2, NULL, fun2, NULL);
 
     /**************************************************
-     * WAIT FOR BOTH THREADS (but they will deadlock)
+     * WAIT FOR BOTH THREADS TO FINISH
      **************************************************/
     pthread_join(T1, NULL);
     pthread_join(T2, NULL);
 
-    /**************************************************
-     * THIS LINE WILL NEVER EXECUTE (due to deadlock)
-     **************************************************/
-    printf("Thread Joined\n");
+    printf("Thread Joined. Program Finished Without Deadlock.\n");
+
+    return 0; // End of main
 }
 
 
 
-/**************************************************************
- * THREAD FUNCTION 1  (fun1)
- * ------------------------------------------------------------
- * LOCK ORDER (Thread 1):
+/*******************************************
+ * THREAD FUNCTION 1  → fun1()
+ * -----------------------------------------
+ * Locks mutexes in order:
+ *      1. first_mutex
+ *      2. second_mutex
+ *******************************************/
+void *fun1()
+{
+    printf("\n[T1] Trying to acquire FIRST mutex...\n");
+
+    /**************************************************
+     * THREAD 1 LOCKS first_mutex
+     **************************************************/
+    pthread_mutex_lock(&first_mutex);
+    printf("[T1] FIRST mutex acquired.\n");
+
+    /**************************************************
+     * SLEEP to let other thread attempt locks
+     **************************************************/
+    sleep(1);
+
+    printf("[T1] Trying to acquire SECOND mutex...\n");
+
+    /**************************************************
+     * THREAD 1 LOCKS second_mutex
+     **************************************************/
+    pthread_mutex_lock(&second_mutex);
+    printf("[T1] SECOND mutex acquired.\n");
+
+    /**************************************************
+     * Unlock in REVERSE ORDER (good practice)
+     **************************************************/
+    pthread_mutex_unlock(&second_mutex);
+    pthread_mutex_unlock(&first_mutex);
+
+    printf("[T1] Released both mutexes.\n");
+
+    return NULL;
+}
+
+
+
+/*******************************************
+ * THREAD FUNCTION 2  → fun2()
+ * -----------------------------------------
+ * Also locks mutexes in SAME ORDER:
  *      1. first_mutex
  *      2. second_mutex
  *
- * This is HALF of the deadlock.
- **************************************************************/
-void *fun1()
-{
-    /**************************************************
-     * TRY TO LOCK FIRST MUTEX
-     **************************************************/
-    printf("T1 trying to acquire first mutex\n");
-    pthread_mutex_lock(&first_mutex);
-    printf("T1 acquired first mutex\n");
-
-    /**************************************************
-     * SLEEP so that T2 gets a chance to lock second_mutex
-     **************************************************/
-    sleep(1);
-
-    /**************************************************
-     * TRY TO LOCK SECOND MUTEX
-     * BUT T2 ALREADY LOCKED THIS → T1 WILL BLOCK FOREVER
-     **************************************************/
-    printf("T1 trying to acquire second mutex\n");
-    pthread_mutex_lock(&second_mutex);
-    printf("T1 acquired second mutex\n");
-
-    /**************************************************
-     * THIS LINE WILL NEVER EXECUTE
-     **************************************************/
-    pthread_mutex_unlock(&first_mutex);
-
-    return NULL;
-}
-
-
-
-/**************************************************************
- * THREAD FUNCTION 2  (fun2)
- * ------------------------------------------------------------
- * LOCK ORDER (Thread 2):
- *      1. second_mutex
- *      2. first_mutex
- *
- * This order is the OPPOSITE of fun1, completing the deadlock.
- **************************************************************/
+ * Because both threads follow SAME LOCK ORDERING,
+ * circular wait is impossible → NO DEADLOCK.
+ *******************************************/
 void *fun2()
 {
-    /**************************************************
-     * TRY TO LOCK SECOND MUTEX
-     **************************************************/
-    printf("T2 trying to acquire second mutex\n");
-    pthread_mutex_lock(&second_mutex);
-    printf("T2 acquired second mutex\n");
+    printf("\n[T2] Trying to acquire FIRST mutex...\n");
 
     /**************************************************
-     * SLEEP so that T1 gets a chance to lock first_mutex
+     * THREAD 2 LOCKS first_mutex
+     **************************************************/
+    pthread_mutex_lock(&first_mutex);
+    printf("[T2] FIRST mutex acquired.\n");
+
+    /**************************************************
+     * SLEEP to increase chance of interleaving
      **************************************************/
     sleep(1);
 
-    /**************************************************
-     * TRY TO LOCK FIRST MUTEX
-     * BUT T1 ALREADY LOCKED THIS → T2 WILL BLOCK FOREVER
-     **************************************************/
-    printf("T2 trying to acquire first mutex\n");
-    pthread_mutex_lock(&first_mutex);
-    printf("T2 acquired first mutex\n");
+    printf("[T2] Trying to acquire SECOND mutex...\n");
 
     /**************************************************
-     * THIS LINE WILL NEVER EXECUTE
+     * THREAD 2 LOCKS second_mutex
+     **************************************************/
+    pthread_mutex_lock(&second_mutex);
+    printf("[T2] SECOND mutex acquired.\n");
+
+    /**************************************************
+     * Unlock in REVERSE ORDER
      **************************************************/
     pthread_mutex_unlock(&second_mutex);
+    pthread_mutex_unlock(&first_mutex);
+
+    printf("[T2] Released both mutexes.\n");
 
     return NULL;
 }
-
-
-
-
 
 
 
@@ -161,15 +164,23 @@ void *fun2()
 
 
 //output
+//
+//
+//
 
 
 
+/*
+[T2] Trying to acquire FIRST mutex...
+[T2] FIRST mutex acquired.
 
-/*T2 trying to acquire second mutex
-T2 acquired second mutex
-T1 trying to acquire first mutex
-T1 acquired first mutex
-T2 trying to acquire first mutex
-T1 trying to acquire second mutex
-
+[T1] Trying to acquire FIRST mutex...
+[T2] Trying to acquire SECOND mutex...
+[T2] SECOND mutex acquired.
+[T2] Released both mutexes.
+[T1] FIRST mutex acquired.
+[T1] Trying to acquire SECOND mutex...
+[T1] SECOND mutex acquired.
+[T1] Released both mutexes.
+Thread Joined. Program Finished Without Deadlock.
 */
